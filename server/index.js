@@ -100,6 +100,27 @@ app.delete("/todos/:id", async (req, res) => {
       .json({ error: `Something went wrong: ${error.message}` });
   }
 });
+
+//mark todo as complete
+app.patch("/markComplete/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const todo_status = "complete";
+    const updateTodo = await pool.query(
+      "UPDATE todo SET todo_status = $1 WHERE todo_id = $2",
+      [todo_status, id]
+    );
+    if (updateTodo.rowCount === 1) {
+      return res.status(200).json({ message: "todo was completed" });
+    }
+    return res.status(404).json({ error: "Invalid todo_id" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ error: `Something went wrong: ${error.message}` });
+  }
+});
+
 app.listen(5000, () => {
   console.log("server has started on port 5000");
 });
