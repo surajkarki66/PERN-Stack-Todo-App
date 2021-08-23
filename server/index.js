@@ -37,10 +37,28 @@ app.get("/todos", async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json({ data: { message: `Something went wrong: ${error.message}` } });
+      .json({ error: `Something went wrong: ${error.message}` });
   }
 });
 
+//get a todo
+app.get("/todos/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const todo = await pool.query("SELECT * FROM todo WHERE todo_id = $1", [
+      id,
+    ]);
+
+    if (todo.rowCount === 0) {
+      return res.status(404).json({ error: "Todo is not found" });
+    }
+    return res.status(200).json(todo.rows[0]);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ error: `Something went wrong: ${error.message}` });
+  }
+});
 app.listen(5000, () => {
   console.log("server has started on port 5000");
 });
