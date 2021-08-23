@@ -15,15 +15,25 @@ app.post("/todo/create", async (req, res) => {
   try {
     const { description } = req.body;
     if (!description) {
-      return res
-        .status(400)
-        .json({ data: { message: "description is required" } });
+      return res.status(400).json({ error: "description is required" });
     }
     const newTodo = await pool.query(
       "INSERT INTO todo (description) VALUES($1) RETURNING *",
       [description]
     );
-    return res.status(201).json({ data: newTodo.rows[0] });
+    return res.status(201).json(newTodo.rows[0]);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ error: `Something went wrong: ${error.message}` });
+  }
+});
+
+//get all todos
+app.get("/todos", async (req, res) => {
+  try {
+    const todos = await pool.query("SELECT * FROM todo");
+    return res.status(200).json(todos.rows);
   } catch (error) {
     return res
       .status(500)
