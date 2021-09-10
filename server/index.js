@@ -32,7 +32,7 @@ app.post("/todo/create", async (req, res) => {
 //get all todos
 app.get("/todos", async (req, res) => {
   try {
-    const todos = await pool.query("SELECT * FROM todo");
+    const todos = await pool.query("SELECT * FROM todo ORDER BY description");
     return res.status(200).json(todos.rows);
   } catch (error) {
     return res
@@ -65,12 +65,13 @@ app.put("/todos/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { description } = req.body;
+    const updated_at = new Date();
     if (!description) {
       return res.status(400).json({ error: "description is required" });
     }
     const updateTodo = await pool.query(
-      "UPDATE todo SET description = $1 WHERE todo_id = $2",
-      [description, id]
+      "UPDATE todo SET description = $1, updated_at = $2 WHERE todo_id = $3",
+      [description, updated_at, id]
     );
     if (updateTodo.rowCount === 1) {
       return res.status(200).json({ message: "todo was updated successfully" });
@@ -101,14 +102,19 @@ app.delete("/todos/:id", async (req, res) => {
   }
 });
 
-//mark todo as complete
+//mark todo as complete or incomplete
 app.patch("/markTodo/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { todo_status } = req.body;
+    let completed_at = new Date();
+    const updated_at = new Date();
+    if (todo_status === "incomplete") {
+      completed_at = null;
+    }
     const updateTodo = await pool.query(
-      "UPDATE todo SET todo_status = $1 WHERE todo_id = $2",
-      [todo_status, id]
+      "UPDATE todo SET todo_status = $1, completed_at = $2, updated_at = $3 WHERE todo_id = $4",
+      [todo_status, completed_at, updated_at, id]
     );
     if (updateTodo.rowCount === 1) {
       return res.status(200).json({ message: "todo is updated" });

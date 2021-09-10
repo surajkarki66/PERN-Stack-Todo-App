@@ -23,7 +23,9 @@ const MarkComplete: React.FC<IProps> = (props) => {
       if (response.ok) {
         window.location.href = "/";
       }
-    } catch (err) {}
+    } catch (err) {
+      console.error(err.message);
+    }
   };
   const handleCheck = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const checked = e.target.checked;

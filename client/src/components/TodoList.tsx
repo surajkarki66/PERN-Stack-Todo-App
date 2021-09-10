@@ -1,7 +1,9 @@
+import moment from "moment";
 import React, { Fragment, useEffect, useState } from "react";
 import Loader from "react-loader-spinner";
 
 import MarkComplete from "./MarkComplete";
+import EditTodo from "./EditTodo";
 
 enum todo_status {
   incomplete = "incomplete",
@@ -11,6 +13,9 @@ export interface ITodo {
   todo_id: number;
   description: string;
   todo_status: todo_status;
+  created_at: Date;
+  updated_at: Date;
+  completed_at: Date;
 }
 const TodoList: React.FC = () => {
   const [todos, setTodos] = useState<ITodo[]>([]);
@@ -24,6 +29,19 @@ const TodoList: React.FC = () => {
       setLoading(false);
     } catch (err) {
       setLoading(false);
+      console.error(err.message);
+    }
+  };
+  const deleteTodo = async (id: number) => {
+    try {
+      const deleteTodo = await fetch(`http://localhost:5000/todos/${id}`, {
+        method: "DELETE",
+      });
+      if (deleteTodo.ok) {
+        setTodos(todos.filter((todo) => todo.todo_id !== id));
+      }
+    } catch (err) {
+      console.error(err.message);
     }
   };
 
@@ -46,23 +64,46 @@ const TodoList: React.FC = () => {
               <th>Mark as complete</th>
               <th>Edit</th>
               <th>Delete</th>
+              <th>Created At</th>
+              <th>Updated At</th>
+              <th>Completed At</th>
             </tr>
           </thead>
           <tbody>
             {todos.map((todo) => (
               <tr key={todo.todo_id}>
-                <td>{todo.description}</td>
+                <td>
+                  <p
+                    style={
+                      todo.todo_status === "complete"
+                        ? { textDecorationLine: "line-through" }
+                        : {}
+                    }
+                  >
+                    {" "}
+                    {todo.description}
+                  </p>
+                </td>
                 <td>
                   <MarkComplete todo={todo} />
                 </td>
-                <td>{/* <EditTodo todo={todo} /> */}</td>
+                <td>
+                  <EditTodo todo={todo} />
+                </td>
                 <td>
                   <button
                     className="btn btn-danger"
-                    //   onClick={() => deleteTodo(todo.todo_id)}
+                    onClick={() => deleteTodo(todo.todo_id)}
                   >
                     Delete
                   </button>
+                </td>
+                <td>{moment(todo.created_at).format("ll")}</td>
+                <td>{moment(todo.updated_at).format("ll")}</td>
+                <td>
+                  {todo.completed_at
+                    ? moment(todo.completed_at).format("ll")
+                    : "NA"}
                 </td>
               </tr>
             ))}

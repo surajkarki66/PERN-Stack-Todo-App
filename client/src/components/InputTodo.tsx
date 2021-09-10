@@ -15,7 +15,7 @@ const InputTodo: React.FC = () => {
         window.location.href = "/";
       }
     } catch (error) {
-      console.log(error.message);
+      console.error(error.message);
     }
   };
   return (
