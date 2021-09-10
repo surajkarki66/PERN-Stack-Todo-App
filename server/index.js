@@ -102,16 +102,16 @@ app.delete("/todos/:id", async (req, res) => {
 });
 
 //mark todo as complete
-app.patch("/markComplete/:id", async (req, res) => {
+app.patch("/markTodo/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const todo_status = "complete";
+    const { todo_status } = req.body;
     const updateTodo = await pool.query(
       "UPDATE todo SET todo_status = $1 WHERE todo_id = $2",
       [todo_status, id]
     );
     if (updateTodo.rowCount === 1) {
-      return res.status(200).json({ message: "todo was completed" });
+      return res.status(200).json({ message: "todo is updated" });
     }
     return res.status(404).json({ error: "Invalid todo_id" });
   } catch (error) {

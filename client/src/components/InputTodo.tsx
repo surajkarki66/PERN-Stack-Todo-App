@@ -2,7 +2,7 @@ import React, { Fragment, useState } from "react";
 
 const InputTodo: React.FC = () => {
   const [description, setDescription] = useState<string>("");
-  const onSubmitForm = async (e: { preventDefault: () => void }) => {
+  const onSubmitForm = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const body = { description };
